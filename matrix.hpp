@@ -20,6 +20,14 @@ public:
     // Dense-Dense multiplication
     Matrix multiply(const Matrix& other) const;
 
+
+    // Dense-Sparse multiplication
+    Matrix multiplySparse(const Matrix& other) const;
+
+    // Sparse-Sparse multiplication
+    Matrix multiplySparseSparse(const Matrix& other) const;
+
+
     // Add other multiplication methods as needed
     // e.g., Matrix denseSparseMultiply(const Matrix& other) const;
     // e.g., Matrix sparseSparseMultiply(const Matrix& other) const;

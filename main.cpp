@@ -1,38 +1,56 @@
-#include <iostream>
 #include "matrix.hpp"
+#include <iostream>
 
 int main() {
-    int rows, cols;
+    int rowsA, colsA, rowsB, colsB;
+    double sparsityA, sparsityB;
 
-    // Prompt user for matrix dimensions
-    std::cout << "Enter the number of rows for matrices A and B: ";
-    std::cin >> rows;
-    std::cout << "Enter the number of columns for matrices A and B: ";
-    std::cin >> cols;
+    std::cout << "Enter number of rows and columns for Matrix A: ";
+    std::cin >> rowsA >> colsA;
 
-    // Create Matrix objects A and B with specified dimensions
-    Matrix A(rows, cols);
-    Matrix B(rows, cols);
+    std::cout << "Enter sparsity for Matrix A (0.0 to 1.0): ";
+    std::cin >> sparsityA;
 
-    // Fill matrices with random values (you can also implement sparsity if needed)
-    A.fillRandom(0.1); // 10% non-zero elements
-    B.fillRandom(0.1); // 10% non-zero elements
+    std::cout << "Enter number of rows and columns for Matrix B: ";
+    std::cin >> rowsB >> colsB;
 
-    // Display matrices (optional)
-    std::cout << "Matrix A:" << std::endl;
+    std::cout << "Enter sparsity for Matrix B (0.0 to 1.0): ";
+    std::cin >> sparsityB;
+
+    Matrix A(rowsA, colsA);
+    Matrix B(rowsB, colsB);
+
+    // Fill matrices with random values based on the specified sparsity
+    A.fillRandom(sparsityA);
+    B.fillRandom(sparsityB);
+
+    std::cout << "Matrix A:\n";
     A.display();
-    std::cout << "Matrix B:" << std::endl;
+    std::cout << "Matrix B:\n";
     B.display();
 
-    // Perform operations based on user choice
-    int operation;
-    std::cout << "Choose operation:\n1. Dense-Dense Multiplication\n";
-    std::cin >> operation;
+    // Choose operation
+    int choice;
+    std::cout << "Choose operation:\n";
+    std::cout << "1. Dense-Dense Multiplication\n";
+    std::cout << "2. Dense-Sparse Multiplication\n";
+    std::cout << "3. Sparse-Sparse Multiplication\n";
+    std::cin >> choice;
 
-    if (operation == 1) {
-        Matrix C = A.multiply(B);
-        std::cout << "Result of A * B:" << std::endl;
-        C.display();
+    if (choice == 1) {
+        Matrix result = A.multiply(B);
+        std::cout << "Result of A * B (Dense-Dense):\n";
+        result.display();
+    } else if (choice == 2) {
+        Matrix result = A.multiplySparse(B);
+        std::cout << "Result of A * B (Dense-Sparse):\n";
+        result.display();
+    } else if (choice == 3) {
+        Matrix result = A.multiplySparseSparse(B);
+        std::cout << "Result of A * B (Sparse-Sparse):\n";
+        result.display();
+    } else {
+        std::cout << "Invalid choice!\n";
     }
 
     return 0;
