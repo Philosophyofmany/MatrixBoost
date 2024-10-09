@@ -1,5 +1,9 @@
 #include "matrix.hpp"
 #include <iostream>
+#include "performance_test.cpp"
+#include <chrono> // For timing
+
+
 
 int main() {
     int rowsA, colsA, rowsB, colsB;
@@ -51,6 +55,16 @@ int main() {
         result.display();
     } else {
         std::cout << "Invalid choice!\n";
+    }
+
+    // Ask if the user wants to run the performance test
+    char runPerfTest;
+    std::cout << "Do you want to run the performance test? (y/n): ";
+    std::cin >> runPerfTest;
+
+    if (runPerfTest == 'y' || runPerfTest == 'Y') {
+        // Perform the performance test using the same dimensions and sparsity
+        performTest(rowsA, colsA, sparsityA);
     }
 
     return 0;
