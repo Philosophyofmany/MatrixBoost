@@ -1,0 +1,24 @@
+# Makefile for matrix multiplication project
+
+# Compiler
+CXX = g++
+
+# Compiler flags
+CXXFLAGS = -std=c++11 -Wall
+
+# Source files
+SOURCES = main.cpp matrix.cpp
+
+# Output executable name
+TARGET = matrix_multiplication
+
+# Default target
+all: $(TARGET)
+
+# Rule to create the executable
+$(TARGET): $(SOURCES)
+	$(CXX) $(CXXFLAGS) -o $(TARGET) $(SOURCES)
+
+# Clean up the build
+clean:
+	rm -f $(TARGET)
