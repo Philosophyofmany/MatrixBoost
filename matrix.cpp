@@ -115,3 +115,24 @@ Matrix Matrix::multiplySparseSparse(const Matrix& other) const {
     }
     return result;
 }
+
+bool Matrix::isNonZero(int row, int col) const {
+    if (row < 0 || row >= rows || col < 0 || col >= cols) {
+        throw std::out_of_range("Matrix index out of range");
+    }
+    return data[row][col] != 0.0;
+}
+
+void Matrix::setResult(const Matrix& result) {
+    // Check for dimension compatibility
+    if (this->getRows() != result.getRows() || this->getCols() != result.getCols()) {
+        throw std::invalid_argument("Result matrix dimensions do not match.");
+    }
+
+    // Update the current matrix with the result matrix's data
+    for (int i = 0; i < this->getRows(); ++i) {
+        for (int j = 0; j < this->getCols(); ++j) {
+            this->set(i, j, result.get(i, j)); // Assuming set and get methods exist
+        }
+    }
+}

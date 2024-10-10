@@ -26,18 +26,24 @@ public:
     // Sparse-Sparse multiplication
     Matrix multiplySparseSparse(const Matrix& other) const;
 
-    // Add other multiplication methods as needed
     // Get number of rows
     int getRows() const;
 
     // Get number of columns
     int getCols() const;
 
+
+    bool isNonZero(int row, int col) const;
+
+    void setResult(const Matrix& result);
+
     // Access individual elements (optional, but useful)
     double get(int row, int col) const;
 
     // Set individual elements (optional, but useful)
     void set(int row, int col, double value);
+
+
 
 private:
     int rows;

@@ -6,6 +6,8 @@
 #include "multithreading.hpp"
 #include "simd.cpp" // Include the SIMD header
 #include "simd.hpp"
+#include "cache_optimization.hpp"
+#include "cache_optimization.cpp"
 
 int main() {
     int rowsA, colsA, rowsB, colsB;
@@ -49,9 +51,9 @@ int main() {
     // Variable to hold the result
     Matrix result(rowsA, colsB);
 
-    // Ask the user if they want to use multithreading or SIMD for optimization
+    // Ask the user if they want to use multithreading, SIMD, or cache optimization for optimization
     char useOptimization;
-    std::cout << "Do you want to use optimization? (m for multithreading, s for SIMD, n for none): ";
+    std::cout << "Do you want to use optimization? (m for multithreading, s for SIMD, c for cache optimization, n for none): ";
     std::cin >> useOptimization;
 
     // Measure performance
@@ -64,6 +66,8 @@ int main() {
             result = denseDenseMultiplyThreaded(A, B);
         } else if (useOptimization == 's' || useOptimization == 'S') {
             result = simd_dense_dense_multiply(A, B);
+        } else if (useOptimization == 'c' || useOptimization == 'C') {
+            result = cache_optimized_multiply_dense_dense(A, B);
         } else {
             result = A.multiply(B);
         }
@@ -74,6 +78,8 @@ int main() {
             result = denseSparseMultiplyThreaded(A, B);
         } else if (useOptimization == 's' || useOptimization == 'S') {
             result = simd_dense_sparse_multiply(A, B);
+        } else if (useOptimization == 'c' || useOptimization == 'C') {
+            result = cache_optimized_multiply_dense_sparse(A, B);
         } else {
             result = A.multiplySparse(B);
         }
@@ -83,9 +89,9 @@ int main() {
         if (useOptimization == 'm' || useOptimization == 'M') {
             result = sparseSparseMultiplyThreaded(A, B);
         } else if (useOptimization == 's' || useOptimization == 'S') {
-            std::cout << "Using SIMD optimization..." << std::endl;
-
             result = simd_sparse_sparse_multiply(A, B);
+        } else if (useOptimization == 'c' || useOptimization == 'C') {
+            result = cache_optimized_multiply_sparse_sparse(A, B);
         } else {
             result = A.multiplySparseSparse(B);
         }
