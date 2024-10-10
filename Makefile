@@ -1,5 +1,3 @@
-# Makefile for matrix multiplication project
-
 # Compiler
 CXX = g++
 
@@ -7,7 +5,7 @@ CXX = g++
 CXXFLAGS = -std=c++11 -Wall
 
 # Source files
-SOURCES = main.cpp matrix.cpp
+SOURCES = main.cpp matrix.cpp multithreading.cpp
 
 # Output executable name
 TARGET = matrix_multiplication
@@ -21,4 +19,4 @@ $(TARGET): $(SOURCES)
 
 # Clean up the build
 clean:
-	rm -f $(TARGET)
+	rm -f $(TARGET) *.o

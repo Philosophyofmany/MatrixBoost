@@ -1,61 +1,93 @@
-#include "matrix.hpp"
 #include <iostream>
+#include "matrix.hpp"
 #include "performance_test.cpp"
-#include <chrono> // For timing
-
-
+#include "multithreading.hpp" // Include your multithreading header
 
 int main() {
     int rowsA, colsA, rowsB, colsB;
     double sparsityA, sparsityB;
 
+    // Get matrix A dimensions and sparsity
     std::cout << "Enter number of rows and columns for Matrix A: ";
     std::cin >> rowsA >> colsA;
-
     std::cout << "Enter sparsity for Matrix A (0.0 to 1.0): ";
     std::cin >> sparsityA;
 
+    // Get matrix B dimensions and sparsity
     std::cout << "Enter number of rows and columns for Matrix B: ";
     std::cin >> rowsB >> colsB;
-
     std::cout << "Enter sparsity for Matrix B (0.0 to 1.0): ";
     std::cin >> sparsityB;
 
+    // Ensure compatible dimensions for multiplication
+    if (colsA != rowsB) {
+        std::cerr << "Error: Incompatible dimensions for multiplication!" << std::endl;
+        return 1;
+    }
+
+    // Create matrices
     Matrix A(rowsA, colsA);
     Matrix B(rowsB, colsB);
 
-    // Fill matrices with random values based on the specified sparsity
+    // Fill matrices with random values
     A.fillRandom(sparsityA);
     B.fillRandom(sparsityB);
 
-    std::cout << "Matrix A:\n";
+    // Display matrices
+    std::cout << "Matrix A:" << std::endl;
     A.display();
-    std::cout << "Matrix B:\n";
+    std::cout << "Matrix B:" << std::endl;
     B.display();
 
-    // Choose operation
+    // Ask the user for the multiplication method
+    std::cout << "Choose operation:\n"
+              << "1. Dense-Dense Multiplication\n"
+              << "2. Dense-Sparse Multiplication\n"
+              << "3. Sparse-Sparse Multiplication\n";
+
     int choice;
-    std::cout << "Choose operation:\n";
-    std::cout << "1. Dense-Dense Multiplication\n";
-    std::cout << "2. Dense-Sparse Multiplication\n";
-    std::cout << "3. Sparse-Sparse Multiplication\n";
     std::cin >> choice;
 
+    // Variable to hold the result
+    Matrix result(rowsA, colsB);
+
+    // Ask the user if they want to use multithreading for optimization
+    char useMultithreading;
+    std::cout << "Do you want to use multithreading for optimization? (y/n): ";
+    std::cin >> useMultithreading;
+
+    // Perform multiplication based on user choice
     if (choice == 1) {
-        Matrix result = A.multiply(B);
-        std::cout << "Result of A * B (Dense-Dense):\n";
-        result.display();
+        // Dense-Dense multiplication
+        if (useMultithreading == 'y' || useMultithreading == 'Y') {
+            result = denseDenseMultiplyThreaded(A, B);
+        } else {
+            result = A.multiply(B);
+        }
+        std::cout << "Result of A * B (Dense-Dense):" << std::endl;
     } else if (choice == 2) {
-        Matrix result = A.multiplySparse(B);
-        std::cout << "Result of A * B (Dense-Sparse):\n";
-        result.display();
+        // Dense-Sparse multiplication
+        if (useMultithreading == 'y' || useMultithreading == 'Y') {
+            result = denseSparseMultiplyThreaded(A, B);
+        } else {
+            result = A.multiplySparse(B);
+        }
+        std::cout << "Result of A * B (Dense-Sparse):" << std::endl;
     } else if (choice == 3) {
-        Matrix result = A.multiplySparseSparse(B);
-        std::cout << "Result of A * B (Sparse-Sparse):\n";
-        result.display();
+        // Sparse-Sparse multiplication
+        if (useMultithreading == 'y' || useMultithreading == 'Y') {
+            result = sparseSparseMultiplyThreaded(A, B);
+        } else {
+            result = A.multiplySparseSparse(B);
+        }
+        std::cout << "Result of A * B (Sparse-Sparse):" << std::endl;
     } else {
-        std::cout << "Invalid choice!\n";
+        std::cerr << "Invalid choice!" << std::endl;
+        return 1;
     }
+
+    // Display the result
+    result.display();
 
     // Ask if the user wants to run the performance test
     char runPerfTest;

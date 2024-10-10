@@ -20,17 +20,24 @@ public:
     // Dense-Dense multiplication
     Matrix multiply(const Matrix& other) const;
 
-
     // Dense-Sparse multiplication
     Matrix multiplySparse(const Matrix& other) const;
 
     // Sparse-Sparse multiplication
     Matrix multiplySparseSparse(const Matrix& other) const;
 
-
     // Add other multiplication methods as needed
-    // e.g., Matrix denseSparseMultiply(const Matrix& other) const;
-    // e.g., Matrix sparseSparseMultiply(const Matrix& other) const;
+    // Get number of rows
+    int getRows() const;
+
+    // Get number of columns
+    int getCols() const;
+
+    // Access individual elements (optional, but useful)
+    double get(int row, int col) const;
+
+    // Set individual elements (optional, but useful)
+    void set(int row, int col, double value);
 
 private:
     int rows;

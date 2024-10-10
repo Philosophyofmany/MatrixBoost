@@ -1,5 +1,26 @@
 #include "matrix.hpp"
 
+
+// Get number of rows
+int Matrix::getRows() const {
+    return rows;
+}
+
+// Get number of columns
+int Matrix::getCols() const {
+    return cols;
+}
+
+// Access individual elements
+double Matrix::get(int row, int col) const {
+    return data[row][col];
+}
+
+// Set individual elements
+void Matrix::set(int row, int col, double value) {
+    data[row][col] = value;
+}
+
 // Constructor
 Matrix::Matrix(int r, int c) : rows(r), cols(c) {
     data.resize(r, std::vector<double>(c, 0.0)); // Initialize matrix with zeros
