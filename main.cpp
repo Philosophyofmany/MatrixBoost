@@ -1,9 +1,10 @@
 #include <iostream>
-#include <chrono> // Include for performance measurement
+#include <chrono>
 #include "matrix.hpp"
 #include <papi.h>
 #include "performance_test.cpp"
-#include "multithreading.hpp" // Include your multithreading header
+#include "multithreading.hpp"
+
 
 int main() {
     int rowsA, colsA, rowsB, colsB;
@@ -36,10 +37,10 @@ int main() {
     B.fillRandom(sparsityB);
 
     // Display matrices
-    std::cout << "Matrix A:" << std::endl;
-    A.display();
-    std::cout << "Matrix B:" << std::endl;
-    B.display();
+    // std::cout << "Matrix A:" << std::endl;
+    // A.display();
+    // std::cout << "Matrix B:" << std::endl;
+    // B.display();
 
     // Ask the user for the multiplication method
     std::cout << "Choose operation:\n"
@@ -97,7 +98,7 @@ int main() {
     std::cout << "Time taken for multiplication: " << duration.count() << " seconds" << std::endl;
 
     // Display the result
-    result.display();
+    // result.display();
 
     // Ask if the user wants to run the performance test
     char runPerfTest;

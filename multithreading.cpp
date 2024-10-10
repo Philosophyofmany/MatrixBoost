@@ -11,7 +11,8 @@ void multiplyRow(const Matrix& A, const Matrix& B, Matrix& result, int row) {
         }
         result.set(row, col, sum);
     }
-    std::cout << "Thread " << std::this_thread::get_id() << " processing row " << row << std::endl;
+    //debug statement
+    // std::cout << "Thread " << std::this_thread::get_id() << " processing row " << row << std::endl;
 }
 
 // Dense-Dense multiplication with multithreading
