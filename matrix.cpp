@@ -13,8 +13,12 @@ int Matrix::getCols() const {
 
 // Access individual elements
 double Matrix::get(int row, int col) const {
+    if (row < 0 || row >= rows || col < 0 || col >= cols) {
+        throw std::out_of_range("Matrix index out of range");
+    }
     return data[row][col];
 }
+
 
 // Set individual elements
 void Matrix::set(int row, int col, double value) {
@@ -22,9 +26,10 @@ void Matrix::set(int row, int col, double value) {
 }
 
 // Constructor
-Matrix::Matrix(int r, int c) : rows(r), cols(c) {
-    data.resize(r, std::vector<double>(c, 0.0)); // Initialize matrix with zeros
+Matrix::Matrix(int rows, int cols) : rows(rows), cols(cols) {
+    data.resize(rows, std::vector<double>(cols)); // Ensure this is correct
 }
+
 
 // Fill the matrix with random values
 void Matrix::fillRandom(double sparsity) {

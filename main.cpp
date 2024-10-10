@@ -4,7 +4,8 @@
 #include <papi.h>
 #include "performance_test.cpp"
 #include "multithreading.hpp"
-
+#include "simd.cpp" // Include the SIMD header
+#include "simd.hpp"
 
 int main() {
     int rowsA, colsA, rowsB, colsB;
@@ -36,12 +37,6 @@ int main() {
     A.fillRandom(sparsityA);
     B.fillRandom(sparsityB);
 
-    // Display matrices
-    // std::cout << "Matrix A:" << std::endl;
-    // A.display();
-    // std::cout << "Matrix B:" << std::endl;
-    // B.display();
-
     // Ask the user for the multiplication method
     std::cout << "Choose operation:\n"
               << "1. Dense-Dense Multiplication\n"
@@ -54,10 +49,10 @@ int main() {
     // Variable to hold the result
     Matrix result(rowsA, colsB);
 
-    // Ask the user if they want to use multithreading for optimization
-    char useMultithreading;
-    std::cout << "Do you want to use multithreading for optimization? (y/n): ";
-    std::cin >> useMultithreading;
+    // Ask the user if they want to use multithreading or SIMD for optimization
+    char useOptimization;
+    std::cout << "Do you want to use optimization? (m for multithreading, s for SIMD, n for none): ";
+    std::cin >> useOptimization;
 
     // Measure performance
     auto start = std::chrono::high_resolution_clock::now(); // Start timing
@@ -65,24 +60,32 @@ int main() {
     // Perform multiplication based on user choice
     if (choice == 1) {
         // Dense-Dense multiplication
-        if (useMultithreading == 'y' || useMultithreading == 'Y') {
+        if (useOptimization == 'm' || useOptimization == 'M') {
             result = denseDenseMultiplyThreaded(A, B);
+        } else if (useOptimization == 's' || useOptimization == 'S') {
+            result = simd_dense_dense_multiply(A, B);
         } else {
             result = A.multiply(B);
         }
         std::cout << "Result of A * B (Dense-Dense):" << std::endl;
     } else if (choice == 2) {
         // Dense-Sparse multiplication
-        if (useMultithreading == 'y' || useMultithreading == 'Y') {
+        if (useOptimization == 'm' || useOptimization == 'M') {
             result = denseSparseMultiplyThreaded(A, B);
+        } else if (useOptimization == 's' || useOptimization == 'S') {
+            result = simd_dense_sparse_multiply(A, B);
         } else {
             result = A.multiplySparse(B);
         }
         std::cout << "Result of A * B (Dense-Sparse):" << std::endl;
     } else if (choice == 3) {
         // Sparse-Sparse multiplication
-        if (useMultithreading == 'y' || useMultithreading == 'Y') {
+        if (useOptimization == 'm' || useOptimization == 'M') {
             result = sparseSparseMultiplyThreaded(A, B);
+        } else if (useOptimization == 's' || useOptimization == 'S') {
+            std::cout << "Using SIMD optimization..." << std::endl;
+
+            result = simd_sparse_sparse_multiply(A, B);
         } else {
             result = A.multiplySparseSparse(B);
         }
@@ -96,9 +99,6 @@ int main() {
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> duration = end - start; // Calculate duration
     std::cout << "Time taken for multiplication: " << duration.count() << " seconds" << std::endl;
-
-    // Display the result
-    // result.display();
 
     // Ask if the user wants to run the performance test
     char runPerfTest;

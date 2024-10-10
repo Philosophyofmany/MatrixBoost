@@ -2,7 +2,7 @@
 CXX = g++
 
 # Compiler flags
-CXXFLAGS = -std=c++11 -Wall
+CXXFLAGS = -std=c++11 -Wall -mavx
 
 # Source files
 SOURCES = main.cpp matrix.cpp multithreading.cpp
