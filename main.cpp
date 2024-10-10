@@ -1,5 +1,7 @@
 #include <iostream>
+#include <chrono> // Include for performance measurement
 #include "matrix.hpp"
+#include <papi.h>
 #include "performance_test.cpp"
 #include "multithreading.hpp" // Include your multithreading header
 
@@ -56,6 +58,9 @@ int main() {
     std::cout << "Do you want to use multithreading for optimization? (y/n): ";
     std::cin >> useMultithreading;
 
+    // Measure performance
+    auto start = std::chrono::high_resolution_clock::now(); // Start timing
+
     // Perform multiplication based on user choice
     if (choice == 1) {
         // Dense-Dense multiplication
@@ -85,6 +90,11 @@ int main() {
         std::cerr << "Invalid choice!" << std::endl;
         return 1;
     }
+
+    // Stop timing
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> duration = end - start; // Calculate duration
+    std::cout << "Time taken for multiplication: " << duration.count() << " seconds" << std::endl;
 
     // Display the result
     result.display();
