@@ -8,6 +8,8 @@
 #include "simd.hpp"
 #include "cache_optimization.hpp"
 #include "cache_optimization.cpp"
+#include "performance_multithreading.cpp"
+#include "performance_simd.cpp"
 
 int main() {
     int rowsA, colsA, rowsB, colsB;
@@ -113,7 +115,7 @@ int main() {
 
     if (runPerfTest == 'y' || runPerfTest == 'Y') {
         // Perform the performance test using the same dimensions and sparsity
-        performTest(rowsA, colsA, sparsityA);
+        performTestSIMD(rowsA, colsA, sparsityA);
     }
 
     return 0;
