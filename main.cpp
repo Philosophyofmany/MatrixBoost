@@ -11,7 +11,60 @@
 #include "performance_multithreading.cpp"
 #include "performance_simd.cpp"
 #include "performance_cache.cpp"
+#include "experimental_results.cpp"
+#include "experimental_multithreading.cpp"
 
+// Running tests
+void optimizationTest() {
+    int sizes[3][2] = {
+        {500, 500},
+        {700, 700},
+        {800, 800}
+    }; // Matrix dimensions (rows, cols)
+
+    double sparsitiesA[4] = {0.01, 0.1, 0.5, 1.0}; // Sparsity for Matrix A
+    double sparsitiesB[4] = {0.01, 0.1, 0.5, 1.0}; // Sparsity for Matrix B
+
+    for (auto size : sizes) {
+        int rows = size[0];
+        int cols = size[1];
+
+        for (double sparsityA : sparsitiesA) {
+            for (double sparsityB : sparsitiesB) {
+                Matrix A(rows, cols);
+                Matrix B(rows, cols);
+
+                A.fillRandom(sparsityA);
+                B.fillRandom(sparsityB);
+
+                std::cout << "Testing with size (" << rows << "x" << cols << ") - "
+                          << "Sparsity A: " << sparsityA << ", "
+                          << "Sparsity B: " << sparsityB << std::endl;
+
+                // Measure performance for each optimization
+                char optimizations[3] = {'m', 's', 'c'}; // multithreading, SIMD, cache optimization
+
+                for (char opt : optimizations) {
+                    auto start = std::chrono::high_resolution_clock::now();
+
+                    // Perform multiplication based on the chosen optimization
+                    if (opt == 'm') {
+                        Matrix result = denseDenseMultiplyThreaded(A, B);
+                    } else if (opt == 's') {
+                        Matrix result = simd_dense_dense_multiply(A, B);
+                    } else if (opt == 'c') {
+                        Matrix result = cache_optimized_multiply_dense_dense(A, B);
+                    }
+
+                    auto end = std::chrono::high_resolution_clock::now();
+                    std::chrono::duration<double> duration = end - start; // Calculate duration
+                    std::cout << "Time taken for optimization " << opt << ": "
+                              << duration.count() << " seconds" << std::endl;
+                }
+            }
+        }
+    }
+}
 
 
 int main() {
@@ -140,6 +193,80 @@ int main() {
             performTest(rowsA, colsA, sparsityA);
         }
     }
+
+    // Ask if the user wants to view optimization test results
+    char viewOptTestResults;
+    std::cout << "Do you want to view the optimization test results? (y/n): ";
+    std::cin >> viewOptTestResults;
+
+    if (viewOptTestResults == 'y' || viewOptTestResults == 'Y') {
+        // Add code to display the optimization test results
+        // This could be a call to a function that shows the results or prints the data
+        optimizationTest(); // Assume this function is defined elsewhere
+    }
+
+
+    // Ask if the user wants to run experimental results
+    char runExperimental;
+    std::cout << "Do you want to run experimental results? (y/n): ";
+    std::cin >> runExperimental;
+
+    // Run experimental results if the user chooses to
+    if (runExperimental == 'y' || runExperimental == 'Y') {
+        std::cout << "Running experimental results..." << std::endl;
+        runExperimentalResults();  // Run the experimental results
+    }
+
+    char runExperimental_multithreading;
+    std::cout << "Do you want to run experimental mode (multithreading)? (y/n): ";
+    std::cin >> runExperimental_multithreading;
+
+    // Run experimental results if the user chooses to
+    if (runExperimental_multithreading == 'y' || runExperimental_multithreading == 'Y') {
+        // Get matrix dimensions for experimental multiplication
+        int rowsA_exp, colsA_exp, rowsB_exp, colsB_exp;
+        std::cout << "Enter number of rows and columns for Matrix A (experimental): ";
+        std::cin >> rowsA_exp >> colsA_exp;
+        std::cout << "Enter number of rows and columns for Matrix B (experimental): ";
+        std::cin >> rowsB_exp >> colsB_exp;
+
+        // Ensure compatible dimensions for multiplication
+        if (colsA_exp != rowsB_exp) {
+            std::cerr << "Error: Incompatible dimensions for multiplication!" << std::endl;
+            return 1;
+        }
+
+        // Create matrices for experimental multiplication
+        Matrix A_exp(rowsA_exp, colsA_exp);
+        Matrix B_exp(rowsB_exp, colsB_exp);
+
+        // Fill matrices with random values (assuming sparsity is handled)
+        double sparsityA_exp, sparsityB_exp;
+        std::cout << "Enter sparsity for Matrix A (0.0 to 1.0): ";
+        std::cin >> sparsityA_exp;
+        A_exp.fillRandom(sparsityA_exp);
+
+        std::cout << "Enter sparsity for Matrix B (0.0 to 1.0): ";
+        std::cin >> sparsityB_exp;
+        B_exp.fillRandom(sparsityB_exp);
+
+        // Choose the multiplication type based on user preference
+        // Perform all three multiplication types
+        Matrix resultDenseDense = experimentalDenseDenseMultiply(A_exp, B_exp);
+        std::cout << "Completed Dense-Dense multiplication." << std::endl;
+
+        Matrix resultDenseSparse = experimentalDenseSparseMultiply(A_exp, B_exp);
+        std::cout << "Completed Dense-Sparse multiplication." << std::endl;
+
+        Matrix resultSparseSparse = experimentalSparseSparseMultiply(A_exp, B_exp);
+        std::cout << "Completed Sparse-Sparse multiplication." << std::endl;
+
+        // Output the result or handle it as needed
+        std::cout << "Multiplication completed." << std::endl;
+        // You can add code here to display or process the result matrix
+    }
+
+
 
     return 0;
 }
