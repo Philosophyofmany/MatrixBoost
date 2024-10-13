@@ -10,6 +10,9 @@
 #include "cache_optimization.cpp"
 #include "performance_multithreading.cpp"
 #include "performance_simd.cpp"
+#include "performance_cache.cpp"
+
+
 
 int main() {
     int rowsA, colsA, rowsB, colsB;
@@ -40,6 +43,14 @@ int main() {
     // Fill matrices with random values
     A.fillRandom(sparsityA);
     B.fillRandom(sparsityB);
+
+
+
+    // // Print the matrices
+    // std::cout << "Matrix A:" << std::endl;
+    // A.display(); // Print Matrix A
+    // std::cout << "Matrix B:" << std::endl;
+    // B.display(); // Print Matrix B
 
     // Ask the user for the multiplication method
     std::cout << "Choose operation:\n"
@@ -114,8 +125,20 @@ int main() {
     std::cin >> runPerfTest;
 
     if (runPerfTest == 'y' || runPerfTest == 'Y') {
-        // Perform the performance test using the same dimensions and sparsity
-        performTestSIMD(rowsA, colsA, sparsityA);
+        // Run the appropriate performance test based on the optimization used
+        if (useOptimization == 'm' || useOptimization == 'M') {
+            std::cout << "Running multithreading performance test...\n";
+            performTestMultithreading(rowsA, colsA, sparsityA);
+        } else if (useOptimization == 's' || useOptimization == 'S') {
+            std::cout << "Running SIMD performance test...\n";
+            performTestSIMD(rowsA, colsA, sparsityA);
+        } else if (useOptimization == 'c' || useOptimization == 'C') {
+            std::cout << "Running cache optimization performance test...\n";
+            performCacheOptimizedTest(rowsA, colsA, sparsityA);
+        } else {
+            std::cout << "Running default performance test...\n";
+            performTest(rowsA, colsA, sparsityA);
+        }
     }
 
     return 0;

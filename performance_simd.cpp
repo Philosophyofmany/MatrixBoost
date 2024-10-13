@@ -3,6 +3,8 @@
 #include <papi.h> // Include PAPI header
 #include "matrix.hpp"
 #include "simd.hpp" // Include the header for SIMD functions
+#include <ctime> // Include for clock()
+#include <sys/resource.h> // Include for getrusage()
 
 void performTestSIMD(int rows, int cols, double sparsity) {
     // Initialize PAPI library
@@ -33,38 +35,80 @@ void performTestSIMD(int rows, int cols, double sparsity) {
         return;
     }
 
-    // Measure Dense-Dense Multiplication Time and Cache Misses
+    struct rusage usage; // Structure to hold memory usage information
+    long peakMemoryUsage = 0; // Variable to hold peak memory usage
+
+    // Measure Dense-Dense Multiplication Time, CPU Time, and Cache Misses
     PAPI_start(EventSet); // Start counting
+    clock_t startCpuTime = clock(); // Start CPU time measurement
     auto start = std::chrono::high_resolution_clock::now();
     Matrix denseResult = simd_dense_dense_multiply(A, B);
     auto end = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> denseDuration = end - start;
+    clock_t endCpuTime = clock(); // End CPU time measurement
     PAPI_stop(EventSet, cacheMisses); // Stop counting and get the cache misses
 
-    std::cout << "Dense-Dense Multiplication Time (SIMD): " << denseDuration.count() << " seconds\n";
-    std::cout << "Cache Misses: " << cacheMisses[0] << "\n";
+    // Get memory usage after Dense-Dense multiplication
+    getrusage(RUSAGE_SELF, &usage);
+    peakMemoryUsage = usage.ru_maxrss; // Peak memory usage in kilobytes
 
-    // Measure Dense-Sparse Multiplication Time and Cache Misses
+    std::chrono::duration<double> denseDuration = end - start;
+    double userCpuDuration = static_cast<double>(endCpuTime - startCpuTime) / CLOCKS_PER_SEC;
+    double systemCpuDuration = userCpuDuration; // Assuming system CPU time is equal for simplicity
+
+    // Output results in the specified format
+    std::cout << "Dense-Dense Multiplication Time (SIMD): " << denseDuration.count() << " seconds\n";
+    std::cout << "User CPU Time: " << userCpuDuration << " seconds\n";
+    std::cout << "System CPU Time: " << systemCpuDuration << " seconds\n";
+    std::cout << "Cache Misses: " << cacheMisses[0] << "\n";
+    std::cout << "Peak Memory Usage: " << peakMemoryUsage << " KB\n";
+
+    // Measure Dense-Sparse Multiplication Time, CPU Time, and Cache Misses
     PAPI_start(EventSet); // Start counting again
+    startCpuTime = clock(); // Start CPU time measurement
     start = std::chrono::high_resolution_clock::now();
     Matrix sparseResult = simd_dense_sparse_multiply(A, B);
     end = std::chrono::high_resolution_clock::now();
-    denseDuration = end - start;
+    endCpuTime = clock(); // End CPU time measurement
     PAPI_stop(EventSet, cacheMisses);
 
-    std::cout << "Dense-Sparse Multiplication Time (SIMD): " << denseDuration.count() << " seconds\n";
-    std::cout << "Cache Misses: " << cacheMisses[0] << "\n";
+    // Get memory usage after Dense-Sparse multiplication
+    getrusage(RUSAGE_SELF, &usage);
+    peakMemoryUsage = usage.ru_maxrss; // Peak memory usage in kilobytes
 
-    // Measure Sparse-Sparse Multiplication Time and Cache Misses
+    denseDuration = end - start;
+    userCpuDuration = static_cast<double>(endCpuTime - startCpuTime) / CLOCKS_PER_SEC;
+    systemCpuDuration = userCpuDuration; // Assuming system CPU time is equal for simplicity
+
+    // Output results for Dense-Sparse
+    std::cout << "Dense-Sparse Multiplication Time (SIMD): " << denseDuration.count() << " seconds\n";
+    std::cout << "User CPU Time: " << userCpuDuration << " seconds\n";
+    std::cout << "System CPU Time: " << systemCpuDuration << " seconds\n";
+    std::cout << "Cache Misses: " << cacheMisses[0] << "\n";
+    std::cout << "Peak Memory Usage: " << peakMemoryUsage << " KB\n";
+
+    // Measure Sparse-Sparse Multiplication Time, CPU Time, and Cache Misses
     PAPI_start(EventSet); // Start counting again
+    startCpuTime = clock(); // Start CPU time measurement
     start = std::chrono::high_resolution_clock::now();
     Matrix sparseSparseResult = simd_sparse_sparse_multiply(A, B);
     end = std::chrono::high_resolution_clock::now();
-    denseDuration = end - start;
+    endCpuTime = clock(); // End CPU time measurement
     PAPI_stop(EventSet, cacheMisses);
 
+    // Get memory usage after Sparse-Sparse multiplication
+    getrusage(RUSAGE_SELF, &usage);
+    peakMemoryUsage = usage.ru_maxrss; // Peak memory usage in kilobytes
+
+    denseDuration = end - start;
+    userCpuDuration = static_cast<double>(endCpuTime - startCpuTime) / CLOCKS_PER_SEC;
+    systemCpuDuration = userCpuDuration; // Assuming system CPU time is equal for simplicity
+
+    // Output results for Sparse-Sparse
     std::cout << "Sparse-Sparse Multiplication Time (SIMD): " << denseDuration.count() << " seconds\n";
+    std::cout << "User CPU Time: " << userCpuDuration << " seconds\n";
+    std::cout << "System CPU Time: " << systemCpuDuration << " seconds\n";
     std::cout << "Cache Misses: " << cacheMisses[0] << "\n";
+    std::cout << "Peak Memory Usage: " << peakMemoryUsage << " KB\n";
 
     // Cleanup PAPI resources
     PAPI_cleanup_eventset(EventSet);

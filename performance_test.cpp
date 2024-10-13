@@ -1,10 +1,10 @@
 #include <iostream>
 #include <chrono>
 #include <papi.h> // Include PAPI header
+#include <sys/resource.h>
 #include "matrix.hpp" // Ensure this header is accessible
 
 void performTest(int rows, int cols, double sparsity) {
-
     // Initialize PAPI library
     if (PAPI_library_init(PAPI_VER_CURRENT) != PAPI_VER_CURRENT) {
         std::cerr << "PAPI library initialization failed!" << std::endl;
@@ -33,6 +33,8 @@ void performTest(int rows, int cols, double sparsity) {
         return;
     }
 
+    struct rusage usage; // For CPU usage statistics
+
     // Measure Dense-Dense Multiplication Time and Cache Misses
     PAPI_start(EventSet); // Start counting
     auto start = std::chrono::high_resolution_clock::now();
@@ -41,8 +43,12 @@ void performTest(int rows, int cols, double sparsity) {
     std::chrono::duration<double> denseDuration = end - start;
     PAPI_stop(EventSet, cacheMisses); // Stop counting and get the cache misses
 
+    // Get CPU usage
+    getrusage(RUSAGE_SELF, &usage);
     std::cout << "Dense-Dense Multiplication Time: " << denseDuration.count() << " seconds\n";
     std::cout << "Cache Misses: " << cacheMisses[0] << "\n";
+    std::cout << "User CPU Time: " << usage.ru_utime.tv_sec + usage.ru_utime.tv_usec / 1e6 << " seconds\n";
+    std::cout << "System CPU Time: " << usage.ru_stime.tv_sec + usage.ru_stime.tv_usec / 1e6 << " seconds\n";
 
     // Measure Dense-Sparse Multiplication Time and Cache Misses
     PAPI_start(EventSet); // Start counting again
@@ -50,10 +56,14 @@ void performTest(int rows, int cols, double sparsity) {
     Matrix sparseResult = A.multiplySparse(B);
     end = std::chrono::high_resolution_clock::now();
     denseDuration = end - start;
-    PAPI_stop(EventSet, cacheMisses);
+    PAPI_stop(EventSet, cacheMisses); // Stop counting and get the cache misses
 
+    // Get CPU usage
+    getrusage(RUSAGE_SELF, &usage);
     std::cout << "Dense-Sparse Multiplication Time: " << denseDuration.count() << " seconds\n";
     std::cout << "Cache Misses: " << cacheMisses[0] << "\n";
+    std::cout << "User CPU Time: " << usage.ru_utime.tv_sec + usage.ru_utime.tv_usec / 1e6 << " seconds\n";
+    std::cout << "System CPU Time: " << usage.ru_stime.tv_sec + usage.ru_stime.tv_usec / 1e6 << " seconds\n";
 
     // Measure Sparse-Sparse Multiplication Time and Cache Misses
     PAPI_start(EventSet); // Start counting again
@@ -61,10 +71,18 @@ void performTest(int rows, int cols, double sparsity) {
     Matrix sparseSparseResult = A.multiplySparseSparse(B);
     end = std::chrono::high_resolution_clock::now();
     denseDuration = end - start;
-    PAPI_stop(EventSet, cacheMisses);
+    PAPI_stop(EventSet, cacheMisses); // Stop counting and get the cache misses
 
+    // Get CPU usage
+    getrusage(RUSAGE_SELF, &usage);
     std::cout << "Sparse-Sparse Multiplication Time: " << denseDuration.count() << " seconds\n";
     std::cout << "Cache Misses: " << cacheMisses[0] << "\n";
+    std::cout << "User CPU Time: " << usage.ru_utime.tv_sec + usage.ru_utime.tv_usec / 1e6 << " seconds\n";
+    std::cout << "System CPU Time: " << usage.ru_stime.tv_sec + usage.ru_stime.tv_usec / 1e6 << " seconds\n";
+
+    // Get peak memory usage
+    getrusage(RUSAGE_SELF, &usage);
+    std::cout << "Peak Memory Usage: " << usage.ru_maxrss << " KB\n"; // ru_maxrss is in KB
 
     // Cleanup PAPI resources
     PAPI_cleanup_eventset(EventSet);

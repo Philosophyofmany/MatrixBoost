@@ -3,6 +3,8 @@
 #include <papi.h> // Include PAPI header
 #include "matrix.hpp" // Ensure this header is accessible
 #include "multithreading.hpp"
+#include <ctime> // Include for clock()
+#include <sys/resource.h> // Include for getrusage()
 
 void performTestMultithreading(int rows, int cols, double sparsity) {
     // Initialize PAPI library
@@ -33,38 +35,65 @@ void performTestMultithreading(int rows, int cols, double sparsity) {
         return;
     }
 
-    // Measure Dense-Dense Multiplication Time and Cache Misses
+    struct rusage usage; // Structure to hold memory usage information
+    long peakMemoryUsage = 0; // Variable to hold peak memory usage
+
+    // Measure Dense-Dense Multiplication Time, Cache Misses, and CPU Usage
     PAPI_start(EventSet); // Start counting
     auto start = std::chrono::high_resolution_clock::now();
+    clock_t cpuStart = clock(); // Start CPU clock
     Matrix denseResult = denseDenseMultiplyThreaded(A, B);
+    clock_t cpuEnd = clock(); // End CPU clock
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> denseDuration = end - start;
     PAPI_stop(EventSet, cacheMisses); // Stop counting and get the cache misses
 
+    // Get memory usage after Dense-Dense multiplication
+    getrusage(RUSAGE_SELF, &usage);
+    peakMemoryUsage = usage.ru_maxrss; // Peak memory usage in kilobytes
+
     std::cout << "Dense-Dense Multiplication Time (Threaded): " << denseDuration.count() << " seconds\n";
     std::cout << "Cache Misses: " << cacheMisses[0] << "\n";
+    std::cout << "User CPU Time: " << (double)(cpuEnd - cpuStart) / CLOCKS_PER_SEC << " seconds\n";
+    std::cout << "Peak Memory Usage: " << peakMemoryUsage << " KB\n";
 
-    // Measure Dense-Sparse Multiplication Time and Cache Misses
+    // Measure Dense-Sparse Multiplication Time, Cache Misses, and CPU Usage
     PAPI_start(EventSet); // Start counting again
     start = std::chrono::high_resolution_clock::now();
+    cpuStart = clock(); // Start CPU clock
     Matrix sparseResult = denseSparseMultiplyThreaded(A, B);
+    cpuEnd = clock(); // End CPU clock
     end = std::chrono::high_resolution_clock::now();
     denseDuration = end - start;
     PAPI_stop(EventSet, cacheMisses);
+
+    // Get memory usage after Dense-Sparse multiplication
+    getrusage(RUSAGE_SELF, &usage);
+    peakMemoryUsage = usage.ru_maxrss; // Peak memory usage in kilobytes
 
     std::cout << "Dense-Sparse Multiplication Time (Threaded): " << denseDuration.count() << " seconds\n";
     std::cout << "Cache Misses: " << cacheMisses[0] << "\n";
+    std::cout << "User CPU Time: " << (double)(cpuEnd - cpuStart) / CLOCKS_PER_SEC << " seconds\n";
+    std::cout << "Peak Memory Usage: " << peakMemoryUsage << " KB\n";
 
-    // Measure Sparse-Sparse Multiplication Time and Cache Misses
+    // Measure Sparse-Sparse Multiplication Time, Cache Misses, and CPU Usage
     PAPI_start(EventSet); // Start counting again
     start = std::chrono::high_resolution_clock::now();
+    cpuStart = clock(); // Start CPU clock
     Matrix sparseSparseResult = sparseSparseMultiplyThreaded(A, B);
+    cpuEnd = clock(); // End CPU clock
     end = std::chrono::high_resolution_clock::now();
     denseDuration = end - start;
     PAPI_stop(EventSet, cacheMisses);
 
+    // Get memory usage after Sparse-Sparse multiplication
+    getrusage(RUSAGE_SELF, &usage);
+    peakMemoryUsage = usage.ru_maxrss; // Peak memory usage in kilobytes
+
     std::cout << "Sparse-Sparse Multiplication Time (Threaded): " << denseDuration.count() << " seconds\n";
     std::cout << "Cache Misses: " << cacheMisses[0] << "\n";
+    std::cout << "User CPU Time: " << (double)(cpuEnd - cpuStart) / CLOCKS_PER_SEC << " seconds\n";
+    std::cout << "Peak Memory Usage: " << peakMemoryUsage << " KB\n";
 
     // Cleanup PAPI resources
     PAPI_cleanup_eventset(EventSet);

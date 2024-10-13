@@ -8,9 +8,9 @@ Matrix cache_optimized_multiply_dense_dense(const Matrix& A, const Matrix& B) {
     int A_cols = A.getCols();
     int B_cols = B.getCols();
 
-    Matrix result(A_rows, B_cols); // Create a result matrix
+    Matrix result(A_rows, B_cols); // Create a result matrix initialized to zero
 
-    const int blockSize = 64; // Example block size
+    const int blockSize = 64; // Example block size optimized for cache
 
     for (int i = 0; i < A_rows; i += blockSize) {
         for (int j = 0; j < B_cols; j += blockSize) {
@@ -19,15 +19,16 @@ Matrix cache_optimized_multiply_dense_dense(const Matrix& A, const Matrix& B) {
                 int j_end = std::min(j + blockSize, B_cols);
                 int k_end = std::min(k + blockSize, A_cols);
 
+                // Multiply the blocks
                 for (int ii = i; ii < i_end; ++ii) {
                     for (int jj = j; jj < j_end; ++jj) {
-                        double sum = 0.0;
+                        double sum = result.get(ii, jj); // Get current value in result
 
                         for (int kk = k; kk < k_end; ++kk) {
-                            sum += A.get(ii, kk) * B.get(kk, jj);
+                            sum += A.get(ii, kk) * B.get(kk, jj); // Multiply and accumulate
                         }
 
-                        result.set(ii, jj, sum); // Directly set the computed sum
+                        result.set(ii, jj, sum); // Update result
                     }
                 }
             }
@@ -43,9 +44,9 @@ Matrix cache_optimized_multiply_dense_sparse(const Matrix& A, const Matrix& B) {
     int A_cols = A.getCols();
     int B_cols = B.getCols();
 
-    Matrix result(A_rows, B_cols); // Create a result matrix
+    Matrix result(A_rows, B_cols); // Create a result matrix initialized to zero
 
-    const int blockSize = 64; // Example block size
+    const int blockSize = 64; // Example block size optimized for cache
 
     for (int i = 0; i < A_rows; i += blockSize) {
         for (int j = 0; j < B_cols; j += blockSize) {
@@ -54,18 +55,19 @@ Matrix cache_optimized_multiply_dense_sparse(const Matrix& A, const Matrix& B) {
                 int j_end = std::min(j + blockSize, B_cols);
                 int k_end = std::min(k + blockSize, A_cols);
 
+                // Multiply the blocks
                 for (int ii = i; ii < i_end; ++ii) {
                     for (int jj = j; jj < j_end; ++jj) {
-                        double sum = 0.0;
+                        double sum = result.get(ii, jj); // Get current value in result
 
-                        // Only access non-zero elements of B
+                        // Only access non-zero elements of sparse matrix B
                         for (int kk = k; kk < k_end; ++kk) {
-                            if (B.isNonZero(kk, jj)) { // Check if the element is non-zero
-                                sum += A.get(ii, kk) * B.get(kk, jj);
+                            if (B.isNonZero(kk, jj)) { // Only check non-zero elements of sparse matrix
+                                sum += A.get(ii, kk) * B.get(kk, jj); // Multiply and accumulate
                             }
                         }
 
-                        result.set(ii, jj, sum); // Directly set the computed sum
+                        result.set(ii, jj, sum); // Update result
                     }
                 }
             }
@@ -81,9 +83,9 @@ Matrix cache_optimized_multiply_sparse_sparse(const Matrix& A, const Matrix& B) 
     int A_cols = A.getCols();
     int B_cols = B.getCols();
 
-    Matrix result(A_rows, B_cols); // Create a result matrix
+    Matrix result(A_rows, B_cols); // Create a result matrix initialized to zero
 
-    const int blockSize = 64; // Example block size
+    const int blockSize = 64; // Example block size optimized for cache
 
     for (int i = 0; i < A_rows; i += blockSize) {
         for (int j = 0; j < B_cols; j += blockSize) {
@@ -92,18 +94,19 @@ Matrix cache_optimized_multiply_sparse_sparse(const Matrix& A, const Matrix& B) 
                 int j_end = std::min(j + blockSize, B_cols);
                 int k_end = std::min(k + blockSize, A_cols);
 
+                // Multiply the blocks
                 for (int ii = i; ii < i_end; ++ii) {
                     for (int jj = j; jj < j_end; ++jj) {
-                        double sum = 0.0;
+                        double sum = result.get(ii, jj); // Get current value in result
 
-                        // Only access non-zero elements of A and B
+                        // Only access non-zero elements of sparse matrices A and B
                         for (int kk = k; kk < k_end; ++kk) {
                             if (A.isNonZero(ii, kk) && B.isNonZero(kk, jj)) {
-                                sum += A.get(ii, kk) * B.get(kk, jj);
+                                sum += A.get(ii, kk) * B.get(kk, jj); // Multiply and accumulate
                             }
                         }
 
-                        result.set(ii, jj, sum); // Directly set the computed sum
+                        result.set(ii, jj, sum); // Update result
                     }
                 }
             }
