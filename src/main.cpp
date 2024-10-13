@@ -4,7 +4,7 @@
 #include <papi.h>
 #include "performance_test.cpp"
 #include "multithreading.hpp"
-#include "simd.cpp" // Include the SIMD header
+#include "simd.cpp"
 #include "simd.hpp"
 #include "cache_optimization.hpp"
 #include "cache_optimization.cpp"
@@ -72,13 +72,13 @@ int main() {
     double sparsityA, sparsityB;
 
     // Get matrix A dimensions and sparsity
-    std::cout << "Enter number of rows and columns for Matrix A: ";
+    std::cout << "Enter number of rows and columns for Matrix A (ex: 10 10): ";
     std::cin >> rowsA >> colsA;
     std::cout << "Enter sparsity for Matrix A (0.0 to 1.0): ";
     std::cin >> sparsityA;
 
     // Get matrix B dimensions and sparsity
-    std::cout << "Enter number of rows and columns for Matrix B: ";
+    std::cout << "Enter number of rows and columns for Matrix B (ex: 10 10): ";
     std::cin >> rowsB >> colsB;
     std::cout << "Enter sparsity for Matrix B (0.0 to 1.0): ";
     std::cin >> sparsityB;
@@ -251,21 +251,31 @@ int main() {
         B_exp.fillRandom(sparsityB_exp);
 
         // Choose the multiplication type based on user preference
-        // Perform all three multiplication types
+        // Timing Dense-Dense multiplication
+        auto start = std::chrono::high_resolution_clock::now();
         Matrix resultDenseDense = experimentalDenseDenseMultiply(A_exp, B_exp);
-        std::cout << "Completed Dense-Dense multiplication." << std::endl;
+        auto end = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> durationDenseDense = end - start;
+        std::cout << "Completed Dense-Dense multiplication in " << durationDenseDense.count() << " seconds." << std::endl;
 
+        // Timing Dense-Sparse multiplication
+        start = std::chrono::high_resolution_clock::now();
         Matrix resultDenseSparse = experimentalDenseSparseMultiply(A_exp, B_exp);
-        std::cout << "Completed Dense-Sparse multiplication." << std::endl;
+        end = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> durationDenseSparse = end - start;
+        std::cout << "Completed Dense-Sparse multiplication in " << durationDenseSparse.count() << " seconds." << std::endl;
 
+        // Timing Sparse-Sparse multiplication
+        start = std::chrono::high_resolution_clock::now();
         Matrix resultSparseSparse = experimentalSparseSparseMultiply(A_exp, B_exp);
-        std::cout << "Completed Sparse-Sparse multiplication." << std::endl;
+        end = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> durationSparseSparse = end - start;
+        std::cout << "Completed Sparse-Sparse multiplication in " << durationSparseSparse.count() << " seconds." << std::endl;
 
         // Output the result or handle it as needed
         std::cout << "Multiplication completed." << std::endl;
         // You can add code here to display or process the result matrix
     }
-
 
 
     return 0;
